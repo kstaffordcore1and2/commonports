@@ -34,9 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const skipButton = document.getElementById('skip-button');
     const scoreDisplay = document.getElementById('score-display');
 
-    // NEW: Create audio objects for the provided files
-    const correctSound = new Audio('correct.mp3'); // Assuming you have a file from before
-    const incorrectSound = new Audio('incorrect.mp3'); // Assuming you have a file from before
+    // NEW: Only load the sounds you provided.
     const skipSound = new Audio('windows_xp_error.mp3');
     const endGameSound = new Audio('windows_xp_logon.mp3');
 
@@ -95,8 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
             portDiv.draggable = true;
             portDiv.dataset.port = port;
             portDiv.addEventListener('dragstart', (e) => {
-    e.dataTransfer.setData('text/plain', e.target.dataset.port);
-});
+                e.dataTransfer.setData('text/plain', e.target.dataset.port);
+            });
             portNumbersContainer.appendChild(portDiv);
         });
     }
@@ -151,8 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const correctPort = shuffledProtocols[currentProtocolIndex].port;
 
         if (checkAnswer() && droppedPort === correctPort) {
-            correctSound.play();
-
+            // Correct answer, but no specific sound
             const timeElapsed = (Date.now() - startTime) / 1000;
             const pointsEarned = Math.max(0, MAX_POINTS_PER_QUESTION - (timeElapsed * 50));
             totalScore += Math.floor(pointsEarned);
@@ -173,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nextButton.style.display = 'block';
             skipButton.style.display = 'none';
         } else {
-            incorrectSound.play();
+            // Incorrect answer, no specific sound
             feedbackMessage.textContent = 'Incorrect. Try again!';
             feedbackMessage.style.color = getComputedStyle(document.documentElement).getPropertyValue('--danger-color');
             feedbackMessage.style.opacity = 1;
