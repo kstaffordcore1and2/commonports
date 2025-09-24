@@ -1,213 +1,218 @@
-/* Windows XP Luna-inspired color palette */
-:root {
-    --primary-color: #4A81E4; /* Luna's signature blue */
-    --primary-hover-color: #3B72D0;
-    --success-color: #8FD853; /* A vibrant green for success */
-    --success-hover-color: #79C240;
-    --danger-color: #F84949; /* A softer red for danger */
-    --danger-hover-color: #DC3838;
-    --background-color: #f0f8ff; /* A slightly off-white blue */
-    --card-bg-color: #E6F3FF; /* A very light blue for the main card */
-    --border-color: #C1D9F3; /* A light blue border */
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const protocolsData = [
+        { acronym: 'FTP', name: 'File Transfer Protocol', port: '20-21' },
+        { acronym: 'SSH', name: 'Secure Shell', port: '22' },
+        { acronym: 'Telnet', name: 'Telnet', port: '23' },
+        { acronym: 'SMTP', name: 'Simple Mail Transfer Protocol', port: '25' },
+        { acronym: 'DNS', name: 'Domain Name System', port: '53' },
+        { acronym: 'DHCP', name: 'Dynamic Host Configuration Protocol', port: '67/68' },
+        { acronym: 'HTTP', name: 'Hypertext Transfer Protocol', port: '80' },
+        { acronym: 'POP3', name: 'Post Office Protocol 3', port: '110' },
+        { acronym: 'IMAP', name: 'Internet Mail Access Protocol', port: '143' },
+        { acronym: 'NetBIOS', name: 'Network Basic Input/Output System', port: '137-139' },
+        { acronym: 'LDAP', name: 'Lightweight Directory Access Protocol', port: '389' },
+        { acronym: 'HTTPS', name: 'Hypertext Transfer Protocol Secure', port: '443' },
+        { acronym: 'SMB', name: 'Server Message Block', port: '445' },
+        { acronym: 'CIFS', name: 'Common Internet File System', port: '445' },
+        { acronym: 'RDP', name: 'Remote Desktop Protocol', port: '3389' }
+    ];
 
-/* Base Styles with Luna theme background */
-body {
-    font-family: 'Segoe UI', 'Arial', sans-serif; /* A font similar to Windows */
-    background-color: var(--background-color);
-    margin: 0;
-    padding: 0;
-    color: #333;
-    line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    background-image: url('windows_xp_16.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5); /* Soft text shadow for a 3D effect */
-}
+    let currentProtocolIndex = 0;
+    const shuffledProtocols = [...protocolsData].sort(() => Math.random() - 0.5);
+    
+    let totalScore = 0;
+    let startTime;
+    const MAX_POINTS_PER_QUESTION = 1000;
+    const SKIP_PENALTY = 200;
 
-/* Header Styles */
-header {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 2rem 1rem;
-    text-align: center;
-    width: 100%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border-bottom: 2px solid var(--border-color);
-}
+    const acronymDisplay = document.getElementById('protocol-acronym');
+    const inputField = document.getElementById('protocol-input');
+    const portNumbersContainer = document.getElementById('port-numbers-container');
+    const dropZone = document.getElementById('drop-zone');
+    const feedbackMessage = document.getElementById('feedback-message');
+    const nextButton = document.getElementById('next-button');
+    const skipButton = document.getElementById('skip-button');
+    const scoreDisplay = document.getElementById('score-display');
 
-header h1 {
-    font-size: 3rem;
-    font-weight: bold;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
+    // NEW: Create audio objects for the provided files
+    const correctSound = new Audio('correct.mp3'); // Assuming you have a file from before
+    const incorrectSound = new Audio('incorrect.mp3'); // Assuming you have a file from before
+    const skipSound = new Audio('windows_xp_error.mp3');
+    const endGameSound = new Audio('windows_xp_logon.mp3');
 
-header p {
-    font-size: 1.1rem;
-    margin: 0.5rem 0 0;
-    color: #fff;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-}
+    function updateScoreDisplay() {
+        scoreDisplay.textContent = `Score: ${totalScore}`;
+    }
 
-/* Main Game Container */
-main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    padding: 2rem;
-}
+    function loadQuestion() {
+        if (currentProtocolIndex >= shuffledProtocols.length) {
+            endGame();
+            return;
+        }
 
-#game-container {
-    background-color: var(--card-bg-color);
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    text-align: center;
-    max-width: 650px;
-    width: 100%;
-    border: 2px solid var(--border-color);
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-}
+        const currentProtocol = shuffledProtocols[currentProtocolIndex];
+        acronymDisplay.textContent = currentProtocol.acronym;
+        inputField.value = '';
+        inputField.disabled = false;
+        dropZone.innerHTML = '<p>Drag the correct port here</p>';
+        dropZone.style.backgroundColor = 'transparent';
+        nextButton.style.display = 'none';
+        skipButton.style.display = 'block';
+        feedbackMessage.style.opacity = 0;
+        
+        inputField.focus();
+        
+        startTime = Date.now();
+        updateScoreDisplay();
 
-/* Protocol Display and Input */
-#protocol-display h2 {
-    font-size: 3rem;
-    color: var(--primary-color);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    font-weight: bold;
-    margin: 0;
-}
+        generatePortNumbers(currentProtocol.port);
+    }
 
-#protocol-input {
-    width: 85%;
-    padding: 0.85rem;
-    font-size: 1.1rem;
-    margin-top: 1.5rem;
-    border: 2px solid #9AB0CF;
-    border-radius: 6px;
-    background: #F9FDFE;
-    text-align: center;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s;
-}
+    function generatePortNumbers(correctPort) {
+        portNumbersContainer.innerHTML = '';
+        const allPorts = protocolsData.map(p => p.port);
+        const uniquePorts = [...new Set(allPorts)];
 
-#protocol-input:focus {
-    outline: none;
-    border-color: #729FDB;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 5px rgba(114, 159, 219, 0.5);
-}
+        const randomPorts = [];
+        
+        while (randomPorts.length < 5) {
+            const randomIndex = Math.floor(Math.random() * uniquePorts.length);
+            const port = uniquePorts[randomIndex];
+            if (!randomPorts.includes(port)) {
+                randomPorts.push(port);
+            }
+        }
+        if (!randomPorts.includes(correctPort)) {
+            randomPorts[Math.floor(Math.random() * randomPorts.length)] = correctPort;
+        }
+        
+        const shuffledPorts = randomPorts.sort(() => Math.random() - 0.5);
 
-/* Drop Zone Styles */
-#drop-zone-container {
-    margin-top: 2.5rem;
-}
+        shuffledPorts.forEach(port => {
+            const portDiv = document.createElement('div');
+            portDiv.className = 'port-number';
+            portDiv.textContent = port;
+            portDiv.draggable = true;
+            portDiv.dataset.port = port;
+            portDiv.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('text/plain', e.target.dataset.port);
+});
+            portNumbersContainer.appendChild(portDiv);
+        });
+    }
 
-#drop-zone {
-    border: 2px dashed var(--border-color);
-    padding: 2.5rem;
-    border-radius: 10px;
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s;
-    background: linear-gradient(to bottom, #F0F7FF, #E6F3FF);
-}
+    function checkAnswer() {
+        const currentProtocol = shuffledProtocols[currentProtocolIndex];
+        const typedAnswer = inputField.value.trim().toLowerCase();
+        
+        let correctAnswers = [];
+        if (currentProtocol.acronym === 'NetBIOS') {
+            correctAnswers = ['network basic input/output system', 'network basic input output system'];
+        } else if (currentProtocol.acronym === 'SMB') {
+            correctAnswers = ['server message block'];
+        } else if (currentProtocol.acronym === 'CIFS') {
+            correctAnswers = ['common internet file system'];
+        } else if (currentProtocol.acronym === 'IMAP') {
+            correctAnswers = ['internet mail access protocol', 'internet message access protocol'];
+        } else {
+            correctAnswers.push(currentProtocol.name.toLowerCase());
+        }
 
-#drop-zone p {
-    margin: 0;
-    color: #777;
-    font-style: italic;
-}
+        const isCorrect = correctAnswers.some(correctAnswer => typedAnswer.includes(correctAnswer));
 
-/* Port Numbers */
-#port-numbers-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.25rem;
-    margin-top: 2.5rem;
-    min-height: 100px;
-}
+        if (isCorrect) {
+            inputField.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--success-color');
+            return true;
+        } else {
+            inputField.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--danger-color');
+            return false;
+        }
+    }
+    
+    inputField.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            checkAnswer();
+        }
+    });
 
-.port-number {
-    background: linear-gradient(to bottom, #8BAFE6, #6D90DB);
-    color: white;
-    padding: 1.25rem 1.75rem;
-    border-radius: 8px;
-    cursor: grab;
-    transition: transform 0.2s, background 0.3s;
-    font-size: 1.5rem;
-    font-weight: bold;
-    border: 1px solid #5C7BBE;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = 'rgba(0, 123, 255, 0.1)';
+    });
 
-.port-number:active {
-    cursor: grabbing;
-    background: linear-gradient(to bottom, #6D90DB, #8BAFE6);
-    transform: translateY(2px);
-}
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.backgroundColor = 'transparent';
+    });
 
-/* Button Styles */
-#button-container {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 3rem;
-}
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = 'transparent';
+        const droppedPort = e.dataTransfer.getData('text/plain');
+        const correctPort = shuffledProtocols[currentProtocolIndex].port;
 
-#next-button, #skip-button {
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    font-size: 1.25rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
-}
+        if (checkAnswer() && droppedPort === correctPort) {
+            correctSound.play();
 
-#next-button {
-    background: linear-gradient(to bottom, var(--success-color), var(--success-hover-color));
-}
+            const timeElapsed = (Date.now() - startTime) / 1000;
+            const pointsEarned = Math.max(0, MAX_POINTS_PER_QUESTION - (timeElapsed * 50));
+            totalScore += Math.floor(pointsEarned);
 
-#skip-button {
-    background: linear-gradient(to bottom, #FFD35F, #FFC107);
-    color: #555;
-    text-shadow: none;
-}
+            const portDiv = document.querySelector(`.port-number[data-port="${droppedPort}"]`);
+            dropZone.innerHTML = '';
+            dropZone.appendChild(portDiv);
+            portDiv.style.cursor = 'default';
+            portDiv.draggable = false;
+            
+            feedbackMessage.textContent = `Correct! +${Math.floor(pointsEarned)} points!`;
+            feedbackMessage.style.color = getComputedStyle(document.documentElement).getPropertyValue('--success-color');
+            feedbackMessage.style.opacity = 1;
+            
+            updateScoreDisplay();
 
-#next-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(to bottom, var(--success-hover-color), var(--success-color));
-}
+            inputField.disabled = true;
+            nextButton.style.display = 'block';
+            skipButton.style.display = 'none';
+        } else {
+            incorrectSound.play();
+            feedbackMessage.textContent = 'Incorrect. Try again!';
+            feedbackMessage.style.color = getComputedStyle(document.documentElement).getPropertyValue('--danger-color');
+            feedbackMessage.style.opacity = 1;
+        }
+    });
 
-#skip-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(to bottom, #FFC107, #FFD35F);
-}
+    nextButton.addEventListener('click', () => {
+        currentProtocolIndex++;
+        loadQuestion();
+    });
 
-#feedback-message {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-top: 1.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    opacity: 0;
-    transition: opacity 0.5s;
-    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.8);
-}
+    skipButton.addEventListener('click', () => {
+        skipSound.play();
+        
+        totalScore = Math.max(0, totalScore - SKIP_PENALTY);
+        updateScoreDisplay();
+
+        const skippedProtocol = shuffledProtocols.splice(currentProtocolIndex, 1)[0];
+        shuffledProtocols.push(skippedProtocol);
+        
+        loadQuestion();
+
+        feedbackMessage.textContent = `Skipped! -${SKIP_PENALTY} points.`;
+        feedbackMessage.style.color = getComputedStyle(document.documentElement).getPropertyValue('--danger-color');
+        feedbackMessage.style.opacity = 1;
+    });
+
+    function endGame() {
+        endGameSound.play();
+        acronymDisplay.textContent = 'Game Over!';
+        inputField.style.display = 'none';
+        portNumbersContainer.style.display = 'none';
+        dropZone.style.display = 'none';
+        nextButton.style.display = 'none';
+        skipButton.style.display = 'none';
+        feedbackMessage.textContent = `You have completed the challenge with a final score of ${totalScore}! Hit the refresh button to start over`;
+        feedbackMessage.style.color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+        feedbackMessage.style.opacity = 1;
+    }
+
+    loadQuestion();
+});
