@@ -1,0 +1,160 @@
+:root {
+    --primary-color: #007bff;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --background-color: #f8f9fa;
+    --card-bg-color: #ffffff;
+    --border-color: #dee2e6;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    /* NEW: Background image styles */
+    background-image: url('windows_xp_16.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+    width: 100%;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 2rem;
+}
+
+#game-container {
+    background-color: var(--card-bg-color);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+}
+
+#protocol-display h2 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+#protocol-input {
+    width: 80%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    text-align: center;
+}
+
+#drop-zone-container {
+    margin-top: 2rem;
+}
+
+#drop-zone {
+    border: 2px dashed var(--border-color);
+    padding: 2rem;
+    border-radius: 8px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+#drop-zone p {
+    margin: 0;
+    color: var(--secondary-color);
+}
+
+#port-numbers-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    min-height: 80px;
+}
+
+.port-number {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    cursor: grab;
+    transition: transform 0.2s;
+    font-size: 1.25rem;
+}
+
+.port-number:active {
+    cursor: grabbing;
+}
+
+#next-button {
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: background-color 0.3s;
+}
+
+#next-button:hover {
+    background-color: #218838;
+}
+
+#feedback-message {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+#button-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+#skip-button {
+    background-color: #ffc107;
+    color: #333;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#skip-button:hover {
+    background-color: #e0a800;
+}
