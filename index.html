@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompTIA A+ Port & Protocol Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Match the Port & Protocol</h1>
+        <p>Type the full name of the protocol, then drag the correct port number to the box.</p>
+	<p>Max points per question (1000): Highest score you can get for a single correct answer.<br>
+	   Deduction Rate (50): For every second that passes, you lose 50 points. Think and type quick!</p>
+    </header>
+
+    <main>
+        <div id="score-display">Score: 0</div>
+        
+        <section id="game-container">
+            <div id="protocol-display">
+                <h2 id="protocol-acronym"></h2>
+                <input type="text" id="protocol-input" placeholder="Type what the acronym stands for...">
+            </div>
+
+            <div id="drop-zone-container">
+                <div id="drop-zone">
+                    <p>Drag the correct port here</p>
+                </div>
+            </div>
+
+            <div id="port-numbers-container">
+                </div>
+            
+            <div id="button-container">
+                <button id="next-button" style="display: none;">Next Protocol</button>
+                <button id="skip-button">Skip</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="feedback-message"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

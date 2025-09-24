@@ -1,2 +1,0 @@
-# commonports
-CompTIA common ports
