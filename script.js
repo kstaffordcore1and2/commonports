@@ -37,6 +37,71 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Only load the sounds you provided.
     const skipSound = new Audio('windows_xp_error.mp3');
     const endGameSound = new Audio('windows_xp_logon.mp3');
+    // Background music: using the MP3 you provided. Make sure this file is in the same folder as this script.
+    // Path: c:\Users\kstafford\Desktop\HTML\portproto\XPtourmusic.mp3
+    const bgMusic = new Audio('XPtourmusic.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.25; // start a bit low so it isn't too loud
+
+    // Try to autoplay the background music. Many browsers block autoplay with sound,
+    // so if play() is rejected we'll show a small "Play Music" button the user can click.
+    function tryStartBackgroundMusic() {
+        const playPromise = bgMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // Autoplay blocked — create a small unobtrusive button so the user can enable music
+                createMusicPlayButton();
+            });
+        }
+    }
+
+    function createMusicPlayButton() {
+        if (document.getElementById('music-play-button')) return;
+        const btn = document.createElement('button');
+        btn.id = 'music-play-button';
+        btn.textContent = 'Play Music';
+        Object.assign(btn.style, {
+            position: 'fixed',
+            bottom: '16px',
+            right: '16px',
+            zIndex: 10000,
+            padding: '8px 12px',
+            background: getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#007bff',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+        });
+        btn.addEventListener('click', () => {
+            bgMusic.play().then(() => {
+                btn.remove();
+            }).catch(() => {
+                // If it still fails, leave the button so the user can try again
+            });
+        });
+        document.body.appendChild(btn);
+    }
+
+    // Gracefully stop the background music when the game ends (fade out)
+    function stopBackgroundMusic() {
+        try {
+            const fadeStep = 0.05;
+            const fadeInterval = setInterval(() => {
+                if (bgMusic.volume - fadeStep > 0) {
+                    bgMusic.volume = Math.max(0, bgMusic.volume - fadeStep);
+                } else {
+                    bgMusic.pause();
+                    bgMusic.currentTime = 0;
+                    bgMusic.volume = 0.25; // reset for next play
+                    clearInterval(fadeInterval);
+                }
+            }, 100);
+        } catch (e) {
+            // If anything goes wrong, ensure the music is stopped
+            try { bgMusic.pause(); bgMusic.currentTime = 0; } catch (err) {}
+        }
+    }
 
     function updateScoreDisplay() {
         scoreDisplay.textContent = `Score: ${totalScore}`;
@@ -200,6 +265,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endGame() {
         endGameSound.play();
+        // Stop/fade the background music when the game ends
+        stopBackgroundMusic();
         acronymDisplay.textContent = 'Game Over!';
         inputField.style.display = 'none';
         portNumbersContainer.style.display = 'none';
@@ -210,6 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackMessage.style.color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
         feedbackMessage.style.opacity = 1;
     }
+
+    // Try to start background music (may be blocked by browser autoplay policies)
+    tryStartBackgroundMusic();
 
     loadQuestion();
 });
